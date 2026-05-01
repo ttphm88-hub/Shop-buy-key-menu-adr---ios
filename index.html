@@ -43,8 +43,8 @@
             if (amount < 1000) { alert("Vui lòng nạp tối thiểu 1.000 VNĐ"); return; }
             
             // --- SỬA THÔNG TIN NGÂN HÀNG Ở ĐÂY ---
-            let nganHang = "MB"; // Thay bằng ngân hàng của bạn (VCB, MB, ICB...)
-            let stk = "123456789"; // Thay bằng số tài khoản của bạn
+            let nganHang = "zalopay"; // Thay bằng ngân hàng của bạn (VCB, MB, ICB...)
+            let stk = "99ZP25346M38091600"; // Thay bằng số tài khoản của bạn
             
             let qrUrl = `https://img.vietqr.io/image/${nganHang}-${stk}-compact.jpg?amount=${amount}&addInfo=NAP%20${tg.initDataUnsafe.user.id}`;
             
