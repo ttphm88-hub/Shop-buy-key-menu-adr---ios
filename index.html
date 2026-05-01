@@ -4,48 +4,49 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hoàng Huynh Store</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #0f172a; color: white; text-align: center; padding: 20px; margin: 0; }
-        .container { max-width: 500px; margin: auto; }
-        .card { background: #1e293b; border-radius: 15px; padding: 20px; margin-bottom: 20px; border: 1px solid #334155; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
-        h2 { color: #3b82f6; }
-        h3 { margin-top: 0; color: #f8fafc; }
-        .btn { background: #3b82f6; color: white; border: none; padding: 12px 20px; border-radius: 10px; cursor: pointer; font-weight: bold; width: 100%; margin: 5px 0; font-size: 16px; }
-        .btn-secondary { background: #6366f1; }
-        .btn-deposit { background: #ec4899; }
-        .price-tag { background: #064e3b; color: #10b981; padding: 5px 10px; border-radius: 5px; display: inline-block; margin: 10px 0; font-weight: bold; }
-        .info { text-align: left; background: #334155; padding: 15px; border-radius: 10px; font-size: 14px; line-height: 1.6; }
-        hr { border: 0; border-top: 1px solid #475569; margin: 15px 0; }
+        body { font-family: sans-serif; background: #0f172a; color: white; text-align: center; padding: 15px; }
+        .card { background: #1e293b; border-radius: 12px; padding: 15px; margin-bottom: 15px; border: 1px solid #334155; }
+        .btn { background: #3b82f6; color: white; border: none; padding: 12px; border-radius: 8px; width: 100%; font-weight: bold; margin-top: 10px; cursor: pointer; }
+        .qr-img { width: 100%; max-width: 250px; border-radius: 10px; margin-top: 15px; display: none; border: 4px solid white; }
+        .input-money { width: 90%; padding: 12px; margin-top: 10px; border-radius: 8px; border: 1px solid #334155; background: #0f172a; color: white; text-align: center; font-size: 16px; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h2>🛒 HOÀNG HUYNH STORE</h2>
-        
-        <div class="card">
-            <div style="font-size: 0.9em; opacity: 0.8;">Số dư của bạn:</div>
-            <div style="font-size: 1.8em; font-weight: bold; color: #10b981;">0 VNĐ</div>
-        </div>
-
-        <div class="card">
-            <h3>📱 APP DỊCH VỤ A</h3>
-            <p style="opacity: 0.7;">Hỗ trợ Android mod refresh rate, ổn định.</p>
-            <div class="price-tag">Giá từ 10.000đ</div>
-            <button class="btn" onclick="alert('Số dư không đủ. Vui lòng nạp thêm!')">Mua Gói 1 Ngày - 10k</button>
-            <button class="btn btn-secondary" onclick="alert('Số dư không đủ. Vui lòng nạp thêm!')">Mua Gói 30 Ngày - 200k</button>
-        </div>
-
-        <div class="card">
-            <h3>💳 NẠP TIỀN VÀO VÍ</h3>
-            <div class="info">
-                <strong>MB BANK:</strong> 123456789<br>
-                <strong>Chủ TK:</strong> HOANG HUYNH<br>
-                <strong>Nội dung:</strong> Nap [Tên_Của_Bạn]
-            </div>
-            <hr>
-            <p style="font-size: 0.8em; color: #94a3b8;">* Sau khi chuyển khoản, hãy nhấn nút bên dưới để báo cho quản trị viên duyệt tiền.</p>
-            <button class="btn btn-deposit" onclick="window.open('https://t.me/your_telegram_username')">Báo đã chuyển tiền</button>
-        </div>
+    <div class="card">
+        <p>Số dư tài khoản</p>
+        <div style="font-size: 2em; color: #10b981; font-weight: bold;">0 VNĐ</div>
     </div>
+    <div class="card">
+        <h3>💳 NẠP TIỀN QUA QR</h3>
+        <input type="number" id="amount" class="input-money" placeholder="Nhập số tiền nạp (VD: 50000)">
+        <button class="btn" style="background: #10b981;" onclick="generateQR()">TẠO MÃ QR</button>
+        <div id="qr-area">
+            <img id="img-qr" class="qr-img" src="">
+        </div>
+        <button id="btn-report" class="btn" style="background: #ec4899; display:none;" onclick="requestDeposit()">TÔI ĐÃ CHUYỂN TIỀN</button>
+    </div>
+    <script>
+        let tg = window.Telegram.WebApp;
+        tg.expand();
+        function generateQR() {
+            let amount = document.getElementById('amount').value;
+            if (amount < 1000) { alert("Tối thiểu 1.000đ"); return; }
+            let nganHang = "MB"; // Thay bằng ngân hàng của bạn
+            let stk = "123456789"; // Thay bằng số tài khoản của bạn
+            let qrUrl = `https://img.vietqr.io/image/${nganHang}-${stk}-compact.jpg?amount=${amount}&addInfo=NAP%20${tg.initDataUnsafe.user.id}`;
+            document.getElementById('img-qr').src = qrUrl;
+            document.getElementById('img-qr').style.display = 'inline-block';
+            document.getElementById('btn-report').style.display = 'block';
+        }
+        function requestDeposit() {
+            let amount = document.getElementById('amount').value;
+            let info = { action: "deposit", amount: amount, user_id: tg.initDataUnsafe.user.id };
+            tg.sendData(JSON.stringify(info));
+            alert("Yêu cầu đã gửi! Admin sẽ kiểm tra.");
+            tg.close();
+        }
+    </script>
 </body>
 </html>
