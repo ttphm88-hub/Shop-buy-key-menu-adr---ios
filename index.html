@@ -15,36 +15,56 @@
 </head>
 <body>
     <div class="card">
-        <p>Số dư tài khoản</p>
-        <div style="font-size: 2em; color: #10b981; font-weight: bold;">0 VNĐ</div>
+        <p>Số dư tài khoản của bạn</p>
+        <div style="font-size: 2.2em; color: #10b981; font-weight: bold;">0 VNĐ</div>
     </div>
+
     <div class="card">
         <h3>💳 NẠP TIỀN QUA QR</h3>
-        <input type="number" id="amount" class="input-money" placeholder="Nhập số tiền nạp (VD: 50000)">
-        <button class="btn" style="background: #10b981;" onclick="generateQR()">TẠO MÃ QR</button>
+        <p style="font-size: 0.9em; opacity: 0.8;">Nhập số tiền nạp:</p>
+        <input type="number" id="amount" class="input-money" placeholder="Ví dụ: 50000">
+        
+        <button class="btn" style="background: #10b981;" onclick="generateQR()">TẠO MÃ QR NẠP TIỀN</button>
+        
         <div id="qr-area">
             <img id="img-qr" class="qr-img" src="">
+            <p id="qr-note" style="display:none; font-size: 12px; color: #94a3b8; margin-top: 5px;">Quét mã trên để chuyển khoản nhanh</p>
         </div>
+
         <button id="btn-report" class="btn" style="background: #ec4899; display:none;" onclick="requestDeposit()">TÔI ĐÃ CHUYỂN TIỀN</button>
     </div>
+
     <script>
         let tg = window.Telegram.WebApp;
         tg.expand();
+
         function generateQR() {
             let amount = document.getElementById('amount').value;
-            if (amount < 1000) { alert("Tối thiểu 1.000đ"); return; }
-            let nganHang = "MB"; // Thay bằng ngân hàng của bạn
+            if (amount < 1000) { alert("Vui lòng nạp tối thiểu 1.000 VNĐ"); return; }
+            
+            // --- SỬA THÔNG TIN NGÂN HÀNG Ở ĐÂY ---
+            let nganHang = "MB"; // Thay bằng ngân hàng của bạn (VCB, MB, ICB...)
             let stk = "123456789"; // Thay bằng số tài khoản của bạn
+            
             let qrUrl = `https://img.vietqr.io/image/${nganHang}-${stk}-compact.jpg?amount=${amount}&addInfo=NAP%20${tg.initDataUnsafe.user.id}`;
+            
             document.getElementById('img-qr').src = qrUrl;
             document.getElementById('img-qr').style.display = 'inline-block';
+            document.getElementById('qr-note').style.display = 'block';
             document.getElementById('btn-report').style.display = 'block';
         }
+
         function requestDeposit() {
             let amount = document.getElementById('amount').value;
-            let info = { action: "deposit", amount: amount, user_id: tg.initDataUnsafe.user.id };
+            let info = {
+                action: "deposit",
+                amount: amount,
+                user_id: tg.initDataUnsafe.user.id,
+                user_name: tg.initDataUnsafe.user.first_name
+            };
+            // Gửi dữ liệu về cho Bot
             tg.sendData(JSON.stringify(info));
-            alert("Yêu cầu đã gửi! Admin sẽ kiểm tra.");
+            alert("Đã gửi thông tin! Vui lòng chờ Admin kiểm tra và cộng tiền.");
             tg.close();
         }
     </script>
